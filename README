@@ -1,0 +1,12 @@
+This package contains Matlab implementation of the algorithm proposed in "Bayesian Supervised Dimensionality Reduction", which is appearing in TCYB.
+
+demo.m file shows how to use the algorithm.
+
+BSDR methods
+------------
+* bsdr_supervised_multiclass_classification_variational_train.m => training procedure
+* bsdr_supervised_multiclass_classification_variational_test.m => test procedure
+
+If you use the algorithm implemented in this package, please cite the following paper:
+
+Mehmet Gonen. Bayesian Supervised Dimensionality Reduction. IEEE Transactions on Cybernetics, 43(6):2179-2189, 2013.
