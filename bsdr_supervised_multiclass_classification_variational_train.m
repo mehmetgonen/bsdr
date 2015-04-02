@@ -104,14 +104,14 @@ function state = bsdr_supervised_multiclass_classification_variational_train(X, 
                 lb = lb + sum((parameters.alpha_phi - 1) * (psi(phi.alpha) + log(phi.beta)) - phi.alpha .* phi.beta / parameters.beta_phi - gammaln(parameters.alpha_phi) - parameters.alpha_phi * log(parameters.beta_phi));
                 %%%% p(Q | phi)
                 for s = 1:R
-                    lb = lb - 0.5 * Q.mu(:, s)' * (phi.alpha(s) * phi.beta(s) * eye(D, D)) * Q.mu(:, s) - 0.5 * (D * log2pi - D * log(phi.alpha(s) * phi.beta(s)));
+                    lb = lb - 0.5 * Q.mu(:, s)' * (phi.alpha(s) * phi.beta(s) * eye(D, D)) * Q.mu(:, s) - 0.5 * (D * log2pi - D * (psi(phi.alpha(s)) + log(phi.beta(s))));
                 end
             otherwise
                 %%%% p(Phi)
                 lb = lb + sum(sum((parameters.alpha_phi - 1) * (psi(Phi.alpha) + log(Phi.beta)) - Phi.alpha .* Phi.beta / parameters.beta_phi - gammaln(parameters.alpha_phi) - parameters.alpha_phi * log(parameters.beta_phi)));
                 %%%% p(Q | Phi)
                 for s = 1:R
-                    lb = lb - 0.5 * Q.mu(:, s)' * diag(Phi.alpha(:, s) .* Phi.beta(:, s)) * Q.mu(:, s) - 0.5 * (D * log2pi - sum(log(Phi.alpha(:, s) .* Phi.beta(:, s))));
+                    lb = lb - 0.5 * Q.mu(:, s)' * diag(Phi.alpha(:, s) .* Phi.beta(:, s)) * Q.mu(:, s) - 0.5 * (D * log2pi - sum(psi(Phi.alpha(:, s)) + log(Phi.beta(:, s))));
                 end
         end
         %%%% p(Z | Q, X)
@@ -119,14 +119,14 @@ function state = bsdr_supervised_multiclass_classification_variational_train(X, 
         %%%% p(lambda)
         lb = lb + sum((parameters.alpha_lambda - 1) * (psi(lambda.alpha) + log(lambda.beta)) - lambda.alpha .* lambda.beta / parameters.beta_lambda - gammaln(parameters.alpha_lambda) - parameters.alpha_lambda * log(parameters.beta_lambda));        
         %%%% p(b | lambda)
-        lb = lb - 0.5 * bW.mu(1, :) * diag(lambda.alpha(:, 1) .* lambda.beta(:, 1)) * bW.mu(1, :)' - 0.5 * (K * log2pi - sum(log(lambda.alpha(:, 1) .* lambda.beta(:, 1))));
+        lb = lb - 0.5 * bW.mu(1, :) * diag(lambda.alpha(:, 1) .* lambda.beta(:, 1)) * bW.mu(1, :)' - 0.5 * (K * log2pi - sum(psi(lambda.alpha(:, 1)) + log(lambda.beta(:, 1))));
         %%%% p(Psi)
         lb = lb + sum(sum((parameters.alpha_psi - 1) * (psi(Psi.alpha) + log(Psi.beta)) - Psi.alpha .* Psi.beta / parameters.beta_psi - gammaln(parameters.alpha_psi) - parameters.alpha_psi * log(parameters.beta_psi)));
         %%%% p(W | Psi)
         for c = 1:K
-            lb = lb - 0.5 * bW.mu(2:R + 1, c)' * diag(Psi.alpha(:, c) .* Psi.beta(:, c)) * bW.mu(2:R + 1, c) - 0.5 * (R * log2pi - sum(log(Psi.alpha(:, c) .* Psi.beta(:, c))));
+            lb = lb - 0.5 * bW.mu(2:R + 1, c)' * diag(Psi.alpha(:, c) .* Psi.beta(:, c)) * bW.mu(2:R + 1, c) - 0.5 * (R * log2pi - sum(psi(Psi.alpha(:, c)) + log(Psi.beta(:, c))));
         end
-        %%%% p(T | b, W, Z) p(y | T)
+        %%%% p(T | b, W, Z)
         WWT.mu = bW.mu(2:R + 1, :) * bW.mu(2:R + 1, :)' + sum(bW.sigma(2:R + 1, 2:R + 1, :), 3);
         lb = lb - 0.5 * (sum(sum(T.mu .* T.mu)) + N * K) + sum(bW.mu(1, :) * T.mu) + sum(sum(Z.mu .* (bW.mu(2:R + 1, :) * T.mu))) - 0.5 * (N * trace(WWT.mu * Z.sigma) + sum(sum(Z.mu .* (WWT.mu * Z.mu)))) - 0.5 * N * (bW.mu(1, :) * bW.mu(1, :)' + sum(bW.sigma(1, 1, :))) - sum(Z.mu' * (bW.mu(2:R + 1, :) * bW.mu(1, :)' + sum(bW.sigma(2:R + 1, 1, :), 3))) - 0.5 * N * K * log2pi;
 
